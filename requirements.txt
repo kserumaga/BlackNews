@@ -1,0 +1,14 @@
+flask
+requests
+beautifulsoup4
+supabase
+transformers
+numpy
+pandas
+google-auth
+google-auth-oauthlib
+PyJWT
+bcrypt
+supabase
+cryptography
+bcrypt
