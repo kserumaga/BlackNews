@@ -8,7 +8,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 class Article:
     def __init__(self, title, content, source_id, category_id, url,
-                 author=None, published_date=None):
+                 author=None, published_date=None, embedding=None, sentiment_score=None):
         self.title = title
         self.content = content
         self.source_id = source_id  # Add new required field
@@ -16,6 +16,8 @@ class Article:
         self.url = url  # Add new required field
         self.author = author
         self.published_date = published_date or datetime.now().isoformat()
+        self.embedding = embedding  # New field
+        self.sentiment_score = sentiment_score  # New field
 
     def save(self):
         """Save the article to the database with relationships"""
@@ -26,7 +28,9 @@ class Article:
             'category_id': self.category_id,
             'url': self.url,
             'author': self.author,
-            'published_date': self.published_date
+            'published_date': self.published_date,
+            'embedding': self.embedding,  # New field
+            'sentiment_score': self.sentiment_score  # New field
         }).execute()
         return response.data[0] if response.data else None
 
@@ -52,5 +56,7 @@ class Article:
             category_id=clean_data['category_id'],
             url=clean_data['url'],
             author=clean_data.get('author'),
-            published_date=clean_data.get('published_date')
+            published_date=clean_data.get('published_date'),
+            embedding=clean_data.get('embedding'),
+            sentiment_score=clean_data.get('sentiment_score')
         )

@@ -2,8 +2,12 @@ import bcrypt
 import jwt
 from datetime import datetime, timedelta
 from app.config import SECRET_KEY
+from cryptography.fernet import Fernet
 
-
+# Generate a key for encryption
+# In practice, store this securely and load it from an environment variable
+encryption_key = Fernet.generate_key()
+cipher = Fernet(encryption_key)
 
 def hash_password(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
@@ -24,3 +28,11 @@ def verify_jwt_token(token):
         return payload['user_id']
     except jwt.ExpiredSignatureError:
         return None
+
+def encrypt_data(data):
+    """Encrypt sensitive data."""
+    return cipher.encrypt(data.encode('utf-8'))
+
+def decrypt_data(encrypted_data):
+    """Decrypt sensitive data."""
+    return cipher.decrypt(encrypted_data).decode('utf-8')

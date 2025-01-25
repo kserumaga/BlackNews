@@ -28,7 +28,7 @@ def clean_article(text):
     patterns = [
         r'Read More:|READ MORE:',
         r'\(.*?(Photo|Getty Images|Credit).*?\)',
-        r'Have you subscribed to theGrio’s.*',
+        r'Have you subscribed to theGrio's.*',
         r'Download theGrio today\!',
         r'Loading the player...',
         r'RELATED:',
@@ -77,6 +77,10 @@ def main():
     # Add cleaned content column
     merged_df['clean_content'] = merged_df['article'].apply(clean_article)
 
+    # Example: Calculate embeddings and sentiment scores
+    merged_df['embedding'] = merged_df['clean_content'].apply(lambda x: calculate_embedding(x))
+    merged_df['sentiment_score'] = merged_df['clean_content'].apply(lambda x: calculate_sentiment(x))
+
     # Get theGrio source ID (create if doesn't exist)
     thegrio_source = supabase.table('sources')\
                            .select('id')\
@@ -109,7 +113,9 @@ def main():
                 category_id=category_id,
                 url=row['URL'],
                 author=row['Authors'],
-                published_date=row['Publish date']
+                published_date=row['Publish date'],
+                embedding=row['embedding'],
+                sentiment_score=row['sentiment_score']
             )
             
             articles_to_insert.append(article.__dict__)
@@ -122,6 +128,15 @@ def main():
         else:
             print(f"Error inserting batch {i//batch_size + 1}: {response.error}")
             break
+
+# Example functions for calculating embeddings and sentiment
+def calculate_embedding(text):
+    # Implement embedding calculation logic
+    return [0.0] * 768  # Placeholder
+
+def calculate_sentiment(text):
+    # Implement sentiment analysis logic
+    return 0.0  # Placeholder
 
 if __name__ == "__main__":
     main()
