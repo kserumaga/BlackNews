@@ -19,6 +19,15 @@
         </div>
     </header>
     <main class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+              <li class="alert alert-{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
         <div class="row">
             <div class="col-md-8">
                 <h2>Latest News</h2>
@@ -26,7 +35,7 @@
             </div>
             <div class="col-md-4">
                 <h2>Login</h2>
-                <form method="post" action="{{ url_for('login') }}">
+                <form method="post" action="{{ url_for('auth.login') }}">
                     <div class="form-group">
                         <label for="email">Email:</label>
                         <input type="email" class="form-control" name="email" required>

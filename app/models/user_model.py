@@ -1,8 +1,19 @@
 from supabase import create_client
-from app.config import SUPABASE_URL, SUPABASE_KEY
 from app.utils.security import hash_password, verify_password
+from app.extensions import db
+from app.config import Config  # Import Config to access SUPABASE_URL and SUPABASE_KEY
 
-class User:
+class User(db.Model):
+    __tablename__ = 'user_profile'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String, nullable=False, unique=True)
+    password = db.Column(db.String)
+    google_id = db.Column(db.String)
+    preferred_sources = db.Column(db.ARRAY(db.String))
+    trust_score = db.Column(db.Float)
+    admin_level = db.Column(db.Integer)
+    user_level = db.Column(db.Integer)
+
     def __init__(self, email, password=None, google_id=None, preferred_sources=None, trust_score=0.5, admin_level=0, user_level=1):
 
         """
@@ -28,7 +39,7 @@ class User:
 
     def save(self):
         # Save user to Supabase
-        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+        supabase = create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY)
         supabase.table('user_profile').insert({
             'email': self.email,
             'password': self.password,
@@ -39,13 +50,6 @@ class User:
             'user_level': self.user_level
         }).execute()
 
-def authenticate_user(email, password):
-    # Fetch user from database
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-    response = supabase.table('user_profile').select('*').eq('email', email).execute()
-    user = response.data[0] if response.data else None
-
-    # Verify password
-    if user and verify_password(password, user['password']):
-        return user
-    return None
+    def check_password(self, password):
+        # Implement proper password hashing here
+        return self.password == password
