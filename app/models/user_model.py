@@ -3,7 +3,7 @@ from app.config import SUPABASE_URL, SUPABASE_KEY
 from app.utils.security import hash_password, verify_password
 
 class User:
-    def __init__(self, email, password=None, google_id=None, preferred_sources=None, trust_score=0.5):
+    def __init__(self, email, password=None, google_id=None, preferred_sources=None, trust_score=0.5, admin_level=0, user_level=1):
 
         """
         Constructor for the User class.
@@ -14,6 +14,8 @@ class User:
             google_id (str, optional): The user's Google ID. Defaults to None.
             preferred_sources (list, optional): The user's preferred sources. Defaults to None.
             trust_score (float, optional): The user's trust score. Defaults to 0.5.
+            admin_level (int, optional): The user's admin level. Defaults to 0.
+            user_level (int, optional): The user's user level. Defaults to 1.
         """
 
         self.email = email
@@ -21,22 +23,26 @@ class User:
         self.google_id = google_id
         self.preferred_sources = preferred_sources or []
         self.trust_score = trust_score
+        self.admin_level = admin_level
+        self.user_level = user_level
 
     def save(self):
         # Save user to Supabase
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        supabase.table('users').insert({
+        supabase.table('user_profile').insert({
             'email': self.email,
             'password': self.password,
             'google_id': self.google_id,
             'preferred_sources': self.preferred_sources,
-            'trust_score': self.trust_score
+            'trust_score': self.trust_score,
+            'admin_level': self.admin_level,
+            'user_level': self.user_level
         }).execute()
 
 def authenticate_user(email, password):
     # Fetch user from database
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-    response = supabase.table('users').select('*').eq('email', email).execute()
+    response = supabase.table('user_profile').select('*').eq('email', email).execute()
     user = response.data[0] if response.data else None
 
     # Verify password
