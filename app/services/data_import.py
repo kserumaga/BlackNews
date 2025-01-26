@@ -28,7 +28,7 @@ def clean_article(text):
     patterns = [
         r'Read More:|READ MORE:',
         r'\(.*?(Photo|Getty Images|Credit).*?\)',
-        r'Have you subscribed to theGrio's.*',
+        r'Have you subscribed to theGrio\'s.*',
         r'Download theGrio today\!',
         r'Loading the player...',
         r'RELATED:',
