@@ -1,13 +1,25 @@
 from dotenv import load_dotenv
 import os
 
-# Load environment variables from .env file
+# Load environment variables first
 load_dotenv()
 
-# Access Supabase credentials
-SUPABASE_URL = os.getenv('SUPABASE_URL')
-SUPABASE_KEY = os.getenv('SUPABASE_KEY')
+class Config:
+    # Required security settings
+    SUPABASE_URL = os.environ['SUPABASE_URL']  # Will raise error if missing
+    SUPABASE_KEY = os.environ['SUPABASE_KEY']
+    SECRET_KEY = os.environ['SECRET_KEY']
+    
+    # Debug should default to False in production
+    DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+    
+    @classmethod
+    def validate(cls):
+        """Check for minimum security requirements"""
+        if len(cls.SECRET_KEY) < 32:
+            raise ValueError("SECRET_KEY must be at least 32 characters")
+        if not cls.SUPABASE_URL.startswith(('https://', 'postgresql://')):
+            raise ValueError("Invalid Supabase URL format")
 
-# Access other environment variables
-SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv('DEBUG')  # Set to "True" to enable debug mode
+# Validate configuration on import
+Config.validate()

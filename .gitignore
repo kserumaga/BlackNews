@@ -5,4 +5,4 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.DS_Store.
+.DS_Store

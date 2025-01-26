@@ -1,7 +1,4 @@
 from supabase import create_client
-import os
+from app.config import Config
 
-supabase = create_client(
-    os.getenv('SUPABASE_URL'),
-    os.getenv('SUPABASE_KEY')
-)
+client = create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY)
