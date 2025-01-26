@@ -3,6 +3,7 @@ from app.services.auth_service import authenticate_user
 from app.utils.security import create_jwt_token
 from app.config import Config
 import jwt
+from app.models.user_model import User
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -10,14 +11,17 @@ auth_bp = Blueprint('auth', __name__)
 def login():
     if request.method == 'POST':
         data = request.form
-        user = authenticate_user(data['email'], data['password'])
+        user = User.query.filter_by(email=data['email']).first()
+        print(f"Queried user: {user}")
         if user:
-            token = create_jwt_token(user.id)
-            # Set token in session or cookie
-            flash('Login successful!', 'success')
-            return redirect(url_for('home'))  # Redirect to home or dashboard
-        flash('Invalid credentials, please try again.', 'danger')
-    return render_template('login.html')  # Render login form
+            if user.check_password(data['password']):
+                flash('Login successful!', 'success')
+                return redirect(url_for('home'))
+            else:
+                flash('Incorrect password, please try again.', 'danger')
+        else:
+            flash('User not found, please check your email.', 'danger')
+    return render_template('login.html')
 
 def validate_jwt(token):
     # Use the validated secret key

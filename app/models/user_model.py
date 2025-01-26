@@ -1,7 +1,7 @@
 from supabase import create_client
-from app.utils.security import hash_password, verify_password
 from app.extensions import db
-from app.config import Config  # Import Config to access SUPABASE_URL and SUPABASE_KEY
+from app.config import Config
+import bcrypt
 
 class User(db.Model):
     __tablename__ = 'user_profile'
@@ -30,7 +30,7 @@ class User(db.Model):
         """
 
         self.email = email
-        self.password = hash_password(password) if password else None
+        self.password = self.hash_password(password) if password else None
         self.google_id = google_id
         self.preferred_sources = preferred_sources or []
         self.trust_score = trust_score
@@ -51,5 +51,8 @@ class User(db.Model):
         }).execute()
 
     def check_password(self, password):
-        # Implement proper password hashing here
-        return self.password == password
+        return bcrypt.checkpw(password.encode('utf-8'), self.password)
+
+    @staticmethod
+    def hash_password(password):
+        return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
