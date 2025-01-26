@@ -1,6 +1,6 @@
 from supabase import create_client
 from app.config import SUPABASE_URL, SUPABASE_KEY
-from app.utils.security import hash_password
+from app.utils.security import hash_password, verify_password
 
 class User:
     def __init__(self, email, password=None, google_id=None, preferred_sources=None, trust_score=0.5):
@@ -32,3 +32,14 @@ class User:
             'preferred_sources': self.preferred_sources,
             'trust_score': self.trust_score
         }).execute()
+
+def authenticate_user(email, password):
+    # Fetch user from database
+    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    response = supabase.table('users').select('*').eq('email', email).execute()
+    user = response.data[0] if response.data else None
+
+    # Verify password
+    if user and verify_password(password, user['password']):
+        return user
+    return None

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlackNews Landing Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>The News</h1>
+            <div class="social-media">
+                <a href="#"><img src="twitter-icon.png" alt="Twitter"></a>
+                <a href="#"><img src="facebook-icon.png" alt="Facebook"></a>
+                <a href="#"><img src="instagram-icon.png" alt="Instagram"></a>
+            </div>
+        </div>
+        <div class="content">
+            <p>A magazine is a periodical publication, which can either be printed or published electronically. It is issued regularly, usually every week or every month, and it contains a variety of content. This can include articles, stories, photographs, and advertisements.</p>
+            <p>- Nayka Brand, CEO Magazine Platform</p>
+        </div>
+        <a href="{{ url_for('login') }}" class="button">Visit Site</a>
+    </div>
+</body>
+</html>
