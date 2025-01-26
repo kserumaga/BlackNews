@@ -10,4 +10,4 @@ PyJWT
 requests
 supabase
 transformers
-psycopg2
+psycopg2-binary

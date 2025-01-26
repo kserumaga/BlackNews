@@ -4,6 +4,7 @@ from flask import current_app
 from app import create_app, db
 from app.config import Config
 from app.services.ai import check_models
+from app.services.news_gathering_agent import NewsFetcher
 
 # Initialize app using factory pattern
 app = create_app()
@@ -62,7 +63,6 @@ def refresh_models():
 @click.option('--source', help='Specific news source to fetch')
 def fetch_news(source=None):
     """Trigger news fetching pipeline"""
-    from app.services.news import NewsFetcher
     results = NewsFetcher().fetch_all(source=source)
     click.echo(f"📰 Fetched {results['new']} new articles ({results['total']} total)")
 
