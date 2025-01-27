@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Manage User Access{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>Manage User Access</h1>
+    <form method="post">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Current Role</th>
+                    <th>New Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>
+                        <select name="role_{{ user.id }}">
+                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                            <option value="editor" {% if user.role == 'editor' %}selected{% endif %}>Editor</option>
+                            <option value="viewer" {% if user.role == 'viewer' %}selected{% endif %}>Viewer</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button type="submit" name="user_id" value="{{ user.id }}" class="btn-update">
+                            Update
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+</div>
+{% endblock %} 

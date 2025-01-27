@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Welcome to BlackNews{% endblock %}
+
+{% block content %}
+<div class="landing-container">
+    <div class="hero">
+        <h1>BlackNews</h1>
+        <p>Your source for culturally contextualized news</p>
+        <a href="{{ url_for('login') }}" class="cta-button">Get Started</a>
+    </div>
+</div>
+{% endblock %}

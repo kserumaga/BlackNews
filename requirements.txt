@@ -12,3 +12,4 @@ supabase
 transformers
 psycopg2-binary
 Flask-SQLAlchemy
+flask-login

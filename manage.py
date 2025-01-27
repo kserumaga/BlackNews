@@ -5,6 +5,7 @@ from app import create_app, db
 from app.config import Config
 from app.services.ai import check_models
 from app.services.news_gathering_agent import NewsFetcher
+from app.user_model import User
 
 # Initialize app using factory pattern
 app = create_app()

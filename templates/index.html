@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="news-grid">
+    {% if featured %}
+    <aside class="ai-context">
+        <div class="credibility-score">🔍 Fact-Checked: {{ featured.verification_score }}% Match</div>
+        <div class="ai-summary">🤖 AI Summary: {{ featured.ai_insight }}</div>
+        <button class="ask-ai" data-article-id="{{ featured.id }}">Question This Article</button>
+    </aside>
+    {% endif %}
+
+    {% for article in articles %}
+    <article class="story-card">
+        <header>
+            <span class="topic-pill">{{ article.primary_topic }}</span>
+            <h2>{{ article.title }}</h2>
+            <div class="meta">
+                <span class="source">{{ article.source }}</span>
+                <span class="popularity">🔥 {{ article.popularity_score }}% Relevant</span>
+            </div>
+        </header>
+        {% if article.media_url %}
+        <div class="media-preview">
+            <img src="{{ article.media_url }}" alt="Story visual context">
+            <button class="transcribe" aria-label="View transcript">📝 Transcript</button>
+        </div>
+        {% endif %}
+    </article>
+    {% endfor %}
+</div>
+{% endblock %}
