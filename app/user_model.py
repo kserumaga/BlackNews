@@ -30,10 +30,25 @@ class User(UserMixin):
                 current_app.logger.error("No session in auth response")
                 return None
             
+            # Handle timestamp conversion safely
+            created_at = response.user.created_at
+            try:
+                if isinstance(created_at, str):
+                    # Remove trailing Z if present
+                    created_at = created_at.replace('Z', '')
+                    parsed_date = datetime.fromisoformat(created_at)
+                elif isinstance(created_at, (int, float)):
+                    parsed_date = datetime.fromtimestamp(created_at)
+                else:
+                    parsed_date = datetime.now()
+            except Exception as parse_error:
+                current_app.logger.warning(f"Date parse error: {str(parse_error)}")
+                parsed_date = datetime.now()
+            
             return cls(
                 id=response.user.id,
                 email=response.user.email,
-                created_at=datetime.fromisoformat(response.user.created_at),
+                created_at=parsed_date,
                 is_admin=response.user.user_metadata.get('is_admin', False)
             )
         

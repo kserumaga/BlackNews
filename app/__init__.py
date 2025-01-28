@@ -1,13 +1,14 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, current_app
 from app.config import Config
 from app.views.auth_views import auth_bp
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from importlib import reload
 from app.services.supabase import supabase
 from flask_limiter import Limiter
 from datetime import datetime
 
 login_manager = LoginManager()
+login_manager.login_view = 'auth.login'
 
 def create_app():
     app = Flask(__name__, template_folder='../templates')
@@ -21,7 +22,6 @@ def create_app():
     
     # Initialize Flask-Login
     login_manager.init_app(app)
-    login_manager.login_view = 'auth.login'
     
     # Initialize Supabase
     supabase.init_app(app)
@@ -42,17 +42,30 @@ def create_app():
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
 
-    limiter = Limiter(key_func=lambda: current_user.id)
+    limiter = Limiter(
+        key_func=lambda: getattr(current_user, 'id', 'anonymous')
+    )
     limiter.init_app(app)
 
     # Add custom filters
     @app.template_filter('datetimeformat')
     def datetimeformat(value, format='%b %d, %Y'):
-        if isinstance(value, datetime):
-            return value.strftime(format)
         try:
-            return datetime.fromisoformat(value).strftime(format)
-        except (TypeError, ValueError):
+            if isinstance(value, datetime):
+                return value.strftime(format)
+            
+            if isinstance(value, (int, float)):
+                return datetime.fromtimestamp(value).strftime(format)
+            
+            if isinstance(value, str):
+                # Handle ISO format with timezone offset
+                if 'Z' in value:
+                    value = value.replace('Z', '+00:00')
+                return datetime.fromisoformat(value).strftime(format)
+            
+            return "N/A"
+        except Exception as e:
+            app.logger.error(f"Datetimeformat error: {str(e)} Value: {value}")
             return "N/A"
 
     return app

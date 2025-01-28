@@ -7,6 +7,7 @@ from app.services.access_control import update_user_role
 from flask import current_app
 from app.services.supabase import supabase
 import re
+from app.news.news import NewsService
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Use a secure key in production
@@ -25,30 +26,20 @@ def index():
 def home():
     """Authenticated user's dashboard"""
     try:
-        # Get featured article
-        featured_response = supabase.table('article') \
-            .select('*') \
-            .eq('is_featured', True) \
-            .order('featured_since', desc=True) \
-            .limit(1) \
-            .execute()
-        
-        featured = featured_response.data[0] if featured_response.data else None
+        # Get featured articles
+        featured = NewsService.get_featured_articles(2)
         
         # Get recent articles
-        recent_response = supabase.table('article') \
-            .select('*') \
-            .order('created_at', desc=True) \
-            .limit(10) \
-            .execute()
+        recent = NewsService.get_recent_articles(4)
         
         return render_template('home.html',
-            featured=featured,  # Must pass this
-            articles=recent_response.data
+            featured_articles=featured,
+            recent_articles=recent
         )
     
     except Exception as e:
-        return render_template('error.html', error=str(e)), 500
+        current_app.logger.error(f"Home error: {str(e)}")
+        return render_template('error.html', error="Could not load articles"), 500
 
 @main_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -58,27 +49,40 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '').strip()
-        current_app.logger.debug(f"Login attempt for email: {email}")
         
-        user = User.authenticate(email, password)
-        current_app.logger.debug(f"Auth response user: {user.__dict__ if user else None}")
+        if not email or not password:
+            flash('Please fill in both email and password', 'danger')
+            return redirect(url_for('main.login'))
+            
+        try:
+            user = User.authenticate(email, password)
+            if user:
+                login_user(user, remember=True)
+                flash('Login successful', 'success')
+                return redirect(url_for('main.home'))
+            else:
+                flash('Invalid email or password', 'danger')
+        except Exception as e:
+            current_app.logger.error(f"Login error: {str(e)}")
+            flash('Login failed. Please try again.', 'danger')
         
-        if user:
-            login_user(user, remember=True)
-            current_app.logger.debug(f"User logged in: {user.email}")
-            flash('Login successful', 'success')
-            return redirect(url_for('main.home'))
-        else:
-            current_app.logger.error("Invalid credentials")
-            flash('Invalid email or password', 'danger')
+        return redirect(url_for('main.login'))
     
     return render_template('auth/login.html')
 
 @main_bp.route('/logout')
 @login_required
 def logout():
-    logout_user()
-    return redirect(url_for('index'))
+    try:
+        # Clear Supabase session
+        supabase.client.auth.sign_out()
+        # Clear Flask-Login session
+        logout_user()
+        flash('You have been logged out', 'success')
+    except Exception as e:
+        current_app.logger.error(f"Logout error: {str(e)}")
+        flash('Logout failed', 'danger')
+    return redirect(url_for('main.index'))
 
 @main_bp.route('/dashboard')
 def dashboard():

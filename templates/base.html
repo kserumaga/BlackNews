@@ -46,7 +46,7 @@
                         <a href="/" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10">Home</a>
                         {% if current_user.is_authenticated %}
                             <a href="{{ url_for('main.profile') }}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10">Profile</a>
-                            <a href="/logout" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10">Logout</a>
+                            <a href="{{ url_for('main.logout') }}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10">Logout</a>
                         {% else %}
                             <a href="/login" class="px-3 py-2 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700">Login</a>
                         {% endif %}
