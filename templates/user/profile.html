@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - BlackNews{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="card p-8 rounded-xl">
+        <!-- Profile Header -->
+        <div class="text-center mb-8">
+            <div class="w-24 h-24 rounded-full bg-white/10 mx-auto mb-4 flex items-center justify-center text-3xl">
+                {{ current_user.email[0]|upper }}
+            </div>
+            <h1 class="text-2xl font-bold">{{ current_user.email }}</h1>
+            <p class="text-gray-400 mt-2">Member since {{ current_user.created_at|datetimeformat }}</p>
+        </div>
+
+        <!-- Account Details -->
+        <div class="space-y-6">
+            <div class="border-b border-white/10 pb-6">
+                <h2 class="text-lg font-semibold mb-4">Account Settings</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-medium">Email Address</p>
+                            <p class="text-gray-400 text-sm">{{ current_user.email }}</p>
+                        </div>
+                        <button class="text-blue-500 hover:text-blue-400 text-sm font-medium">
+                            Change Email
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-medium">Password</p>
+                            <p class="text-gray-400 text-sm">••••••••</p>
+                        </div>
+                        <button class="text-blue-500 hover:text-blue-400 text-sm font-medium">
+                            Change Password
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscription Status -->
+            <div class="border-b border-white/10 pb-6">
+                <h2 class="text-lg font-semibold mb-4">Subscription</h2>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium">Current Plan</p>
+                        <p class="text-gray-400 text-sm">Free Tier</p>
+                    </div>
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                        Upgrade Plan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div>
+                <h2 class="text-lg font-semibold mb-4 text-red-500">Danger Zone</h2>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium">Delete Account</p>
+                        <p class="text-gray-400 text-sm">Permanently remove your account</p>
+                    </div>
+                    <button class="text-red-500 hover:text-red-400 text-sm font-medium">
+                        Delete Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

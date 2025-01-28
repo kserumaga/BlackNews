@@ -6,6 +6,7 @@ from supabase import create_client
 from app.services.access_control import update_user_role
 from flask import current_app
 from app.services.supabase import supabase
+import re
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Use a secure key in production
@@ -57,19 +58,19 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '').strip()
-        
-        if not email or not password:
-            flash('Both email and password are required', 'danger')
-            return redirect(url_for('main.login'))
+        current_app.logger.debug(f"Login attempt for email: {email}")
         
         user = User.authenticate(email, password)
+        current_app.logger.debug(f"Auth response user: {user.__dict__ if user else None}")
+        
         if user:
             login_user(user, remember=True)
-            flash(f'Welcome back, {user.email}!', 'success')
-            next_page = request.args.get('next')
-            return redirect(next_page or url_for('main.home'))
+            current_app.logger.debug(f"User logged in: {user.email}")
+            flash('Login successful', 'success')
+            return redirect(url_for('main.home'))
         else:
-            flash('Invalid email/password combination', 'danger')
+            current_app.logger.error("Invalid credentials")
+            flash('Invalid email or password', 'danger')
     
     return render_template('auth/login.html')
 
@@ -128,6 +129,14 @@ def manage_access():
 def get_articles():
     articles = supabase.table('articles').select('*').execute()
     return render_template('articles.html', articles=articles.data)
+
+@main_bp.route('/profile')
+@login_required
+def profile():
+    return render_template('user/profile.html')
+
+def validate_password(password):
+    return re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', password)
 
 if __name__ == '__main__':
     app.run(debug=True)

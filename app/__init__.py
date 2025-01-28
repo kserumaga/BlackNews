@@ -3,6 +3,9 @@ from app.config import Config
 from app.views.auth_views import auth_bp
 from flask_login import LoginManager
 from importlib import reload
+from app.services.supabase import supabase
+from flask_limiter import Limiter
+from datetime import datetime
 
 login_manager = LoginManager()
 
@@ -18,10 +21,9 @@ def create_app():
     
     # Initialize Flask-Login
     login_manager.init_app(app)
-    login_manager.login_view = 'login'
+    login_manager.login_view = 'auth.login'
     
     # Initialize Supabase
-    from app.services.supabase import supabase
     supabase.init_app(app)
 
     # Import user model after app creation
@@ -35,10 +37,22 @@ def create_app():
     def home():
         return render_template('index.html')  # or 'dashboard.html'
 
-    app.register_blueprint(auth_bp, url_prefix='/auth')
-
     # Register blueprints
     from app.routes import main_bp
     app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+
+    limiter = Limiter(key_func=lambda: current_user.id)
+    limiter.init_app(app)
+
+    # Add custom filters
+    @app.template_filter('datetimeformat')
+    def datetimeformat(value, format='%b %d, %Y'):
+        if isinstance(value, datetime):
+            return value.strftime(format)
+        try:
+            return datetime.fromisoformat(value).strftime(format)
+        except (TypeError, ValueError):
+            return "N/A"
 
     return app

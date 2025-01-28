@@ -5,20 +5,29 @@ import jwt
 from app.config import Config
 from flask_sqlalchemy import SQLAlchemy
 from app.services.access_control import update_user_role
+from flask_login import current_user, login_user
 
 auth_bp = Blueprint('auth', __name__)
 db = SQLAlchemy()
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+    
     if request.method == 'POST':
-        data = request.form
-        user = User.query.filter_by(email=data['email']).first()
-        if user and user.check_password(data['password']):
-            flash('Login successful!', 'success')
-            return redirect(url_for('home'))  # Redirect to home
-        flash('Invalid credentials, please try again.', 'danger')
-    return render_template('login.html')
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '').strip()
+        
+        user = User.authenticate(email, password)
+        if user:
+            login_user(user, remember=True)
+            flash('Login successful', 'success')
+            return redirect(url_for('main.home'))
+        else:
+            flash('Invalid credentials', 'danger')
+    
+    return render_template('auth/login.html')
 
 def validate_jwt(token):
     # Use the validated secret key

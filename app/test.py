@@ -10,7 +10,7 @@ with app.app_context():
     try:
         response = supabase.client.auth.sign_up({
             "email": "kserumaga@gmail.com",
-            "password": "Kalundi2004"
+            "password": "test1234"
         })
         
         if response.user:
@@ -26,7 +26,7 @@ print("\nTesting login...")
 try:
     login_response = supabase.client.auth.sign_in_with_password({
         "email": "kserumaga@gmail.com",
-        "password": "Kalundi2004"
+        "password": "test1234"
     })
     
     if login_response.user:

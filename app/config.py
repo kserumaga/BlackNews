@@ -15,6 +15,11 @@ class Config:
     # Debug should default to False in production
     DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
     
+    # Add session protection
+    SESSION_COOKIE_SECURE = True  # Requires HTTPS
+    SESSION_COOKIE_HTTPONLY = True
+    PERMANENT_SESSION_LIFETIME = 3600  # 1 hour
+    
     @classmethod
     def validate(cls):
         """Check for minimum security requirements"""

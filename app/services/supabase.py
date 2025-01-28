@@ -10,6 +10,11 @@ class SupabaseClient:
     def init_app(self, app):
         self.client = create_client(
             app.config['SUPABASE_URL'],
+            app.config['SUPABASE_KEY']  # Use anon key for client-side
+        )
+        # Service role for admin operations
+        self.admin = create_client(
+            app.config['SUPABASE_URL'],
             app.config['SUPABASE_KEY']
         )
     
