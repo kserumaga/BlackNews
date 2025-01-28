@@ -6,7 +6,7 @@ from app.config import Config
 import requests
 from datetime import datetime
 
-print("User class reloaded!")  # Add temporary line
+
 
 class User(UserMixin):
     def __init__(self, id, email, created_at=None, is_admin=False):
@@ -30,19 +30,20 @@ class User(UserMixin):
                 current_app.logger.error("No session in auth response")
                 return None
             
-            # Handle timestamp conversion safely
+            # Handle different timestamp formats
             created_at = response.user.created_at
             try:
                 if isinstance(created_at, str):
-                    # Remove trailing Z if present
-                    created_at = created_at.replace('Z', '')
+                    # Remove timezone offset if present
+                    created_at = created_at.split('+')[0].replace('Z', '')
                     parsed_date = datetime.fromisoformat(created_at)
                 elif isinstance(created_at, (int, float)):
+                    # Convert from Unix timestamp
                     parsed_date = datetime.fromtimestamp(created_at)
                 else:
                     parsed_date = datetime.now()
             except Exception as parse_error:
-                current_app.logger.warning(f"Date parse error: {str(parse_error)}")
+                current_app.logger.error(f"Date parse error: {str(parse_error)}")
                 parsed_date = datetime.now()
             
             return cls(

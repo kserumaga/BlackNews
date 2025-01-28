@@ -1,4 +1,4 @@
-from flask import Flask, render_template, current_app
+from flask import Flask, render_template, current_app, request
 from app.config import Config
 from app.views.auth_views import auth_bp
 from flask_login import LoginManager, current_user
@@ -42,10 +42,14 @@ def create_app():
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
 
+    # Initialize rate limiter
     limiter = Limiter(
-        key_func=lambda: getattr(current_user, 'id', 'anonymous')
+        app=app,
+        key_func=lambda: f"{request.remote_addr}-{current_user.id if current_user.is_authenticated else 'anon'}"
     )
-    limiter.init_app(app)
+    
+    # Apply rate limits to auth routes
+    limiter.limit("10/minute")(main_bp)
 
     # Add custom filters
     @app.template_filter('datetimeformat')

@@ -51,38 +51,25 @@ def login():
         password = request.form.get('password', '').strip()
         
         if not email or not password:
-            flash('Please fill in both email and password', 'danger')
+            flash('Both email and password are required', 'danger')
             return redirect(url_for('main.login'))
-            
-        try:
-            user = User.authenticate(email, password)
-            if user:
-                login_user(user, remember=True)
-                flash('Login successful', 'success')
-                return redirect(url_for('main.home'))
-            else:
-                flash('Invalid email or password', 'danger')
-        except Exception as e:
-            current_app.logger.error(f"Login error: {str(e)}")
-            flash('Login failed. Please try again.', 'danger')
         
-        return redirect(url_for('main.login'))
+        user = User.authenticate(email, password)
+        if user:
+            login_user(user, remember=True)
+            flash('Login successful', 'success')
+            return redirect(url_for('main.home'))
+        else:
+            flash('Invalid email or password', 'danger')
     
     return render_template('auth/login.html')
 
 @main_bp.route('/logout')
 @login_required
 def logout():
-    try:
-        # Clear Supabase session
-        supabase.client.auth.sign_out()
-        # Clear Flask-Login session
-        logout_user()
-        flash('You have been logged out', 'success')
-    except Exception as e:
-        current_app.logger.error(f"Logout error: {str(e)}")
-        flash('Logout failed', 'danger')
-    return redirect(url_for('main.index'))
+    logout_user()
+    flash('You have been logged out', 'success')
+    return redirect(url_for('main.home'))
 
 @main_bp.route('/dashboard')
 def dashboard():

@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+from datetime import timedelta
 
 # Load environment variables first
 load_dotenv()
@@ -18,7 +19,13 @@ class Config:
     # Add session protection
     SESSION_COOKIE_SECURE = True  # Requires HTTPS
     SESSION_COOKIE_HTTPONLY = True
-    PERMANENT_SESSION_LIFETIME = 3600  # 1 hour
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    
+    # Add these settings
+    SERVER_NAME = 'localhost:5000'  # For URL generation
+    APPLICATION_ROOT = '/'
+    PREFERRED_URL_SCHEME = 'http'
     
     @classmethod
     def validate(cls):
